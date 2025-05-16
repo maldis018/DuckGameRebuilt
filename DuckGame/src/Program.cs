@@ -36,7 +36,7 @@ namespace DuckGame
 #endif
 
         // this should be formatted like X.X.X where each X is a number
-        public const string CURRENT_VERSION_ID = "1.4.5.4";
+        public const string CURRENT_VERSION_ID = "1.4.5.5";
 
         // do change this you know what you're doing -NiK0
         public const string CURRENT_VERSION_ID_FORMATTED = "v" + CURRENT_VERSION_ID;
@@ -635,6 +635,27 @@ namespace DuckGame
                         break;
                     case "-logLoading":
                         MonoMain.logLoading = true;
+                        break;
+                    case "-tournament":
+                        DGRSettings.TournamentMode = true;
+                        DGRSettings.SkipXP = true;
+                        DGRSettings.SkipExcessRounds = true;
+
+                        DGRSettings.HSDSpacing = 5;
+                        DGRSettings.HSDXoffset = 2;
+                        DGRSettings.HSDYoffset = 2;
+                        DGRSettings.HSDOpacity = 100;
+                        DGRSettings.HSDFontScale = 50;
+                        DGRSettings.HSDSorting = 0;
+                        DGRSettings.HSDHorizontal = false;
+                        DGRSettings.HSDRightToLeft = false;
+                        DGRSettings.HSDClearNames = true;
+                        DGRSettings.HSDStandardizeNames = true;
+                        DGRSettings.HSDShowScore = true;
+                        DGRSettings.HSDShowColors = true;
+                        DGRSettings.HSDShowRoundsLeft = false;
+                        DGRSettings.HSDBlackOutline = true;
+                        DGRSettings.HSDStarForHighestScore = true;
                         break;
                     default:
                         if (args[index] == "-nolaunch")
@@ -1260,9 +1281,29 @@ namespace DuckGame
             
             UpdateAutoUpdaterProgress(6);
             
-            using ZipArchive archive = new(dgrZipStream);
-            archive.ExtractToDirectory(parentDirectoryPath);
-            archive.Dispose();
+            if (!IsLinuxD)
+            {
+                using ZipArchive archive = new(dgrZipStream);
+                archive.ExtractToDirectory(parentDirectoryPath);
+                archive.Dispose();
+            }
+            else
+            {
+                if (File.Exists("/usr/bin/unzip"))
+                {
+                    Process.Start("/usr/bin/unzip", "-o " + zipPath);
+                }
+                else if (File.Exists("/bin/unzip"))
+                {
+                    Process.Start("/bin/unzip", "-o " + zipPath);
+                }
+                else
+                {
+                    Console.WriteLine("\nunzip not found! Please install unzip or extract DuckGameRebuilt.zip yourself.");
+                    Process.GetCurrentProcess().Kill();
+                }
+                
+            }
 
             UpdateAutoUpdaterProgress(7);
 
